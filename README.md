@@ -39,7 +39,7 @@ Aspiring SOC Analyst with a background in IT operations and system administratio
 
 | Project | Description | GitHub Link |
 |---------|-------------|-------------|
-| Active Directory 2.0 | Built a Windows Active Directory lab integrated with Splunk Enterprise and Splunk SOAR to simulate SOC operations. The project collects Windows security logs, detects unauthorized logins, and automates analyst-driven account disablement through Slack, email notifications, and SOAR playbooks. | [https://github.com/jpangan43/MySOC-Portfolio/tree/main/Active-Directory2.0) |
+| Active Directory 2.0 | Built a Windows Active Directory lab integrated with Splunk Enterprise and Splunk SOAR to simulate SOC operations. The project collects Windows security logs, detects unauthorized logins, and automates analyst-driven account disablement through Slack, email notifications, and SOAR playbooks. | [View Project](https://github.com/jpangan43/MySOC-Portfolio/tree/main/Active-Directory2.0) |
 | SOC Home Lab | Hands-on SOC lab using Microsoft Sentinel, Defender XDR, Wazuh, and KQL. | [View Project](https://github.com/your-username/soc-home-lab) |
 | Malware Analysis & DFIR | Static and dynamic malware analysis with Procmon, Wireshark, Sysmon, and MITRE ATT&CK mapping. | [View Project](https://github.com/your-username/malware-analysis-dfir) |
 
