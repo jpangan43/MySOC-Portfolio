@@ -1,0 +1,165 @@
+### 1. Docker networking configuration (Shuffle Active Directory App to AD Domain Controller)
+
+# Check the Shuffle containers
+docker ps -a | findstr shuffle
+
+# Check the Active Directory container
+docker ps -a | findstr active-directory
+
+# Inspect Docker networks
+docker network ls
+
+# Inspect the Shuffle network
+docker network inspect <shuffle_network>
+
+# Connect the Active Directory container to the required Docker network
+docker network connect <network_name> <active_directory_container>
+
+### 2. Webhook Node
+
+Important fields received from Splunk:
+user
+ComputerName
+Source_Network_Address
+Logon_Type
+count
+Example:
+{
+  "user": "Administrator",
+  "ComputerName": "WIN_APUDAUNOBRC.MyDFIRLAB.LOCAL",
+  "Source_Network_Address": "127.0.0.1",
+  "Logon_Type": "7",
+  "count": "1"
+}
+Dynamic username field:
+$exec.result.user
+
+### 3. Splunk Alert
+
+Search name:
+MyDFIR-Unauthorized-Successful-Login-RDP
+
+Dynamic username:
+$exec.result.user
+
+### 4. Slack Notification
+
+Node: Alert-Notification
+Action: chat_postMessage
+
+Successful result:
+status = 200
+ok = true
+success = true
+channel = C0BP1L25SQ4
+
+Recommended message:
+[SUSPICIOUS RDP LOGIN DETECTED]
+
+User: $exec.result.user
+Computer: $exec.result.ComputerName
+Source IP: $exec.result.Source_Network_Address
+Logon Type: $exec.result.Logon_Type
+Action: User account will be disabled automatically
+
+### 5. Active Directory Configuration
+
+Node: Active Directory 1
+Action: Disable user
+Server: 192.168.21.130
+Port: 389
+Domain: MYDFIRLAB
+Login User: administrator
+Base DN: CN=Users,DC=MYDFIRLAB,DC=LOCAL
+
+SamAccountName:
+$exec.result.use
+
+### 6. Connectivity Testing
+
+Shuffle worker shell:
+docker exec -it shuffle-workers.1.qj5p4pnkkg5ws5444xxwn1522 sh
+
+LDAP 389:
+nc -zv 192.168.21.130 389
+Result: 192.168.21.130 (192.168.21.130:389) open
+
+LDAPS 636:
+nc -zv 192.168.21.130 636
+Result: 192.168.21.130 (192.168.21.130:636) open
+
+### 7. Active Directory Verification
+(Get-ADDomain).DNSRoot
+MyDFIRLAB.LOCAL
+
+(Get-ADDomain).DistinguishedName
+CN=Users,DC=MYDFIRLAB,DC=LOCAL
+
+(Get-ADDomain).NetBIOSName
+MYDFIRLAB
+
+hostname
+WIN_APUDAUNOBRC
+
+Get-Service NTDS
+Running - NTDS - Active Directory Domain Services
+
+### 8. Active Directory User Testing
+
+The user_attributes action was first tested successfully.
+
+Returned DN:
+CN=Administrator,CN=Users,DC=MyDFIRLAB,DC=LOCAL
+
+The action was then changed from user_attributes to disable_user
+
+### 9. Safe Test Account
+
+Test account:
+Jenny Smith
+
+SAM account name:
+jsmith
+
+Successful disable_user result:
+{
+  "result": 0,
+  "description": "success",
+  "dn": "",
+  "message": "",
+  "referrals": null,
+}
+  "type": "modifyResponse",
+  "samAccountName": "jsmith"
+
+This confirmed that Shuffle can successfully disable an AD user.
+
+### 10. Dynamic Username Mapping
+
+Configure:
+Active Directory -> Disable user -> SamAccountName
+
+Value:
+$exec.result.user
+
+Examples:
+Splunk detects Administrator -> AD receives Administrator
+Splunk detects jsmith -> AD receives jsmith
+
+### 11. Verification Summary
+
+Splunk alert: Working
+Webhook: Receiving alert
+Shuffle runtime: MyDFIR-AD-Lab
+Shuffle -> AD connectivity: Working
+LDAP 389: Open
+LDAPS 636: Open
+AD DS: Running
+AD domain: MYDFIRLAB.LOCAL
+AD user lookup: Working
+Slack notification: Working
+Slack HTTP response: 200 / OK
+Disable AD user: Successfully tested with jsmith
+Dynamic username: Final end-to-end test
+
+Note: Removing the User Action node makes the disable operation automatic.
