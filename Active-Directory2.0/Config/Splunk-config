@@ -1,0 +1,74 @@
+1. Download Splunk
+
+Download the Splunk Enterprise .deb package.
+
+wget -O splunk.deb "<SPLUNK_DOWNLOAD_URL>"
+
+Replace <SPLUNK_DOWNLOAD_URL> with the appropriate Splunk download URL.
+
+2. Install Splunk
+
+Install the downloaded Splunk package.
+
+sudo dpkg -i splunk.deb
+
+If dependency errors occur:
+
+sudo apt --fix-broken install -y
+
+Run the installation again:
+
+sudo dpkg -i splunk.deb
+
+3. Start Splunk
+
+Start Splunk for the first time.
+
+sudo /opt/splunk/bin/splunk start
+
+Accept the Splunk license agreement and configure the Splunk administrator account.
+
+4. Enable Splunk at Boot
+
+Configure Splunk to start automatically when the server boots.
+
+sudo /opt/splunk/bin/splunk enable boot-start
+
+5. Check Splunk Status
+
+Verify that the Splunk service is running.
+
+sudo /opt/splunk/bin/splunk status
+
+Expected:
+
+splunkd is running
+splunk helpers are running
+
+6. Access Splunk Web
+
+Open a browser and navigate to:
+
+http://192.168.21.132:8000
+
+7. Configure Splunk Receiving
+
+Navigate to:
+
+Settings
+    ↓
+Forwarding and receiving
+    ↓
+Configure receiving
+    ↓
+Add new receiving port
+
+Configure the receiving port: 9997
+
+8. Verify the Splunk Receiving Port
+
+Check whether Splunk is listening on port 9997.
+
+sudo ss -tulpn | grep 9997
+
+The port should appear as listening.
